@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -23,6 +24,7 @@ public class senderMain {
 		}
 		return true;
 	}
+	
 
 	public static void main(String[] args) throws IOException {
 //		FileInputStream in = new FileInputStream(filename);
@@ -35,6 +37,7 @@ public class senderMain {
 		int serverPort = 5555;
 		String serverIP = "localhost";
 		String fileName = "src/supermarket.txt";
+
 		//override settings
 		if (args.length==4){
 			serverIP=args[0];
@@ -42,6 +45,7 @@ public class senderMain {
 			senderPort= Integer.parseInt(args[2]);
 			fileName=args[3];
 		}else{
+			System.out.println(args.length);
 			System.out.println("Usage: java senderMain <Server IP> <Server Port> <sender Port> <Filename>");
 		}
 		int bufferLength=124;

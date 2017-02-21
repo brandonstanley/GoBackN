@@ -1,5 +1,7 @@
+import java.io.FileOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -20,6 +22,7 @@ public class receiverMain {
 		int numOfPacketsReceived=0;
 		int expectedPacketNumber=0;
 		int sequenceSize=256;
+
 		if (args.length==5){
 			senderIP = args[0];
 			senderSocketPort = Integer.parseInt(args[1]);
@@ -31,6 +34,8 @@ public class receiverMain {
 		}
 		
 		try{
+			FileOutputStream out = new FileOutputStream(fileName);
+
 			receiverSocket=new DatagramSocket(receiverSocketPort);
 			System.out.println("receiver is running...");
 
@@ -57,6 +62,10 @@ public class receiverMain {
 						DatagramPacket response=new DatagramPacket(responseMsg,responseMsg.length,request.getAddress(),request.getPort());
 						receiverSocket.send(response);
 						expectedPacketNumber=(expectedPacketNumber+1)%sequenceSize;
+						byte[] outputData = Arrays.copyOfRange(request.getData(), 0, request.getLength());
+
+						out.write(outputData);
+
 					}else{
 						System.out.println(seqNum+" not expected, expecting seqNum: "+expectedPacketNumber);
 					}
