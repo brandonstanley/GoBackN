@@ -54,7 +54,7 @@ public class senderMain {
 		byte [] byteArray=new byte[124];
 		File file = new File(fileName);
 		int numBytes=(int) file.length()-1;
-		System.out.println("here is the file size"+numBytes);
+		System.out.println("File size: "+numBytes);
 //		Map<Integer ,Boolean> windowACKS=new HashMap<Integer,Boolean>();
 		ArrayList<Boolean> windowACKS=new ArrayList<Boolean>();
 		ArrayList<DatagramPacket>currentWindowDataGrams =new ArrayList<DatagramPacket>();
