@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class clientMain {
+public class senderMain {
 	
 	public static boolean arrayListIsAllTrue(ArrayList<Boolean> arrayList){
 		if(arrayList.isEmpty()){
@@ -29,9 +29,9 @@ public class clientMain {
 //		in.rea
 		// TODO Auto-generated method stub
 		
-		DatagramSocket clientSocket;
+		DatagramSocket senderSocket;
 		//default settings
-		int clientPort=5558;
+		int senderPort=5558;
 		int serverPort = 5555;
 		String serverIP = "localhost";
 		String fileName = "src/supermarket.txt";
@@ -39,10 +39,10 @@ public class clientMain {
 		if (args.length==4){
 			serverIP=args[0];
 			serverPort=Integer.parseInt(args[1]);
-			clientPort= Integer.parseInt(args[2]);
+			senderPort= Integer.parseInt(args[2]);
 			fileName=args[3];
 		}else{
-			System.out.println("Usage: java clientMain <Server IP> <Server Port> <Client Port> <Filename>");
+			System.out.println("Usage: java senderMain <Server IP> <Server Port> <sender Port> <Filename>");
 		}
 		int bufferLength=124;
 		int sequenceSize=256;
@@ -57,12 +57,12 @@ public class clientMain {
 		
 //		try {		
 
-			clientSocket=new DatagramSocket(clientPort);
-			clientSocket.setSoTimeout(100);
+			senderSocket=new DatagramSocket(senderPort);
+			senderSocket.setSoTimeout(100);
     		InetAddress host=InetAddress.getByName(serverIP);
 
     		
-			int seqNumber=shared.getExpectedSequenceNumber();
+			int seqNumber=sequenceTracker.getExpectedSequenceNumber();
 			FileInputStream in = new FileInputStream("src/supermarket.txt");
 			int currentByte=0;
 			int bytesLeft;
@@ -71,7 +71,7 @@ public class clientMain {
 			while(currentByte<=(numBytes)&&!(arrayListIsAllTrue(windowACKS))){
 				//if this is the first time and we're not resending the first packet
 				if(currentByte==0&&!resendPacket){
-					seqNumber=shared.getExpectedSequenceNumber();
+					seqNumber=sequenceTracker.getExpectedSequenceNumber();
 					int c=0;
 					while(c<windowSize && currentByte<(numBytes-1)){
 						byteArray=new byte[124];
@@ -85,13 +85,13 @@ public class clientMain {
 							currentByte=currentByte+bytesLeft;
 						}
 						
-						String clientMsg=new String(byteArray);
-						System.out.println(clientMsg);
+						String senderMsg=new String(byteArray);
+						System.out.println(senderMsg);
 
 						DatagramPacket request=new DatagramPacket(byteArray,byteArray.length,host,serverPort);
 
 						System.out.println("Sending Packet: "+seqNumber);
-						clientSocket.send(request);
+						senderSocket.send(request);
 						windowACKS.add(false);
 						currentWindowDataGrams.add(request);
 						
@@ -103,7 +103,7 @@ public class clientMain {
 					for(DatagramPacket packet: currentWindowDataGrams){
 						
 //						DatagramPacket request=new DatagramPacket(byteArray,byteArray.length,host,serverPort);
-						clientSocket.send(packet);
+						senderSocket.send(packet);
 					}
 				//if an ACK was received for the first element in the window
 				}else if(windowACKS.get(0)){
@@ -115,7 +115,7 @@ public class clientMain {
 					while(c<windowSize && windowACKS.get(c)){
 						newWindowACKS.remove(c);
 						newCurrentWindowDataGrams.remove(c);
-						shared.incrementExpectedSequenceNumber();
+						sequenceTracker.incrementExpectedSequenceNumber();
 						c++;
 					}
 					currentWindowDataGrams=new ArrayList<DatagramPacket>(newCurrentWindowDataGrams);
@@ -124,7 +124,7 @@ public class clientMain {
 					
 					
 
-					seqNumber=(shared.getExpectedSequenceNumber()+c)%sequenceSize;
+					seqNumber=(sequenceTracker.getExpectedSequenceNumber()+c)%sequenceSize;
 
 					while(c>0 && currentByte<(numBytes-1)){
 						byteArray=new byte[124];
@@ -138,13 +138,13 @@ public class clientMain {
 							currentByte=currentByte+bytesLeft;
 						}
 						
-						String clientMsg=new String(byteArray);
-						System.out.println(clientMsg);
+						String senderMsg=new String(byteArray);
+						System.out.println(senderMsg);
 
 						DatagramPacket request=new DatagramPacket(byteArray,byteArray.length,host,serverPort);
 
 						System.out.println("Sending Packet: "+seqNumber);
-						clientSocket.send(request);
+						senderSocket.send(request);
 						windowACKS.add(false);
 						currentWindowDataGrams.add(request);
 						c--;
@@ -162,16 +162,16 @@ public class clientMain {
 				DatagramPacket response=new DatagramPacket(buffer, buffer.length);
 				
 				try{
-					clientSocket.receive(response);
+					senderSocket.receive(response);
 					int responseACK=response.getData()[0]&0xff;
 					System.out.println("Receiving ACK: "+ responseACK);
-//					resendPacket=responseACK==shared.getExpectedSequenceNumber()?false:true;
-					if(responseACK<(shared.getExpectedSequenceNumber()+windowSize)){
+//					resendPacket=responseACK==sequenceTracker.getExpectedSequenceNumber()?false:true;
+					if(responseACK<(sequenceTracker.getExpectedSequenceNumber()+windowSize)){
 						resendPacket=false;
-//						shared.incrementExpectedSequenceNumber();
-//						System.out.println("expected seq num"+shared.getExpectedSequenceNumber());
-//						System.out.println("changing"+(responseACK-shared.getExpectedSequenceNumber()));
-						windowACKS.set(responseACK-shared.getExpectedSequenceNumber(), true);
+//						sequenceTracker.incrementExpectedSequenceNumber();
+//						System.out.println("expected seq num"+sequenceTracker.getExpectedSequenceNumber());
+//						System.out.println("changing"+(responseACK-sequenceTracker.getExpectedSequenceNumber()));
+						windowACKS.set(responseACK-sequenceTracker.getExpectedSequenceNumber(), true);
 						
 					}else{
 						resendPacket=true;
@@ -192,7 +192,7 @@ public class clientMain {
 				
 			}
 			 					            
-			clientSocket.close();
+			senderSocket.close();
 //		} catch (Exception e) {
 			// TODO Auto-generated catch block
 //			System.out.println("Timeout reached!");

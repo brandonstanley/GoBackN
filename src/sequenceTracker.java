@@ -1,5 +1,5 @@
 
-public class shared {
+public class sequenceTracker {
 	private static int expectedSequenceNumber=0;
 	private static int sequenceSize=256;
 	
