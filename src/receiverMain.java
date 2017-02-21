@@ -62,7 +62,7 @@ public class receiverMain {
 						DatagramPacket response=new DatagramPacket(responseMsg,responseMsg.length,request.getAddress(),request.getPort());
 						receiverSocket.send(response);
 						expectedPacketNumber=(expectedPacketNumber+1)%sequenceSize;
-						byte[] outputData = Arrays.copyOfRange(request.getData(), 0, request.getLength());
+						byte[] outputData = Arrays.copyOfRange(request.getData(), 1, request.getLength());
 
 						out.write(outputData);
 

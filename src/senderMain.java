@@ -141,7 +141,10 @@ public class senderMain {
 							in.read(byteArray, 1, bytesLeft+1);
 							currentByte=currentByte+bytesLeft;
 						}
-						
+						if(seqNumber==9){
+							System.out.println("FUCK");
+							System.out.println(byteArray[1]);
+						}
 						String senderMsg=new String(byteArray);
 						System.out.println(senderMsg);
 
