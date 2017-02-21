@@ -30,15 +30,25 @@ public class clientMain {
 		// TODO Auto-generated method stub
 		
 		DatagramSocket clientSocket;
-		String serverIP=args[0];
-		int serverPort=Integer.parseInt(args[1]);
-		int clientPort=5558;//Integer.parseInt(args[2]);
-		String fileName=args[3];
+		//default settings
+		int clientPort=5558;
+		int serverPort = 5555;
+		String serverIP = "localhost";
+		String fileName = "src/supermarket.txt";
+		//override settings
+		if (args.length==4){
+			serverIP=args[0];
+			serverPort=Integer.parseInt(args[1]);
+			clientPort= Integer.parseInt(args[2]);
+			fileName=args[3];
+		}else{
+			System.out.println("Usage: java clientMain <Server IP> <Server Port> <Client Port> <Filename>");
+		}
 		int bufferLength=124;
 		int sequenceSize=256;
 		int windowSize=2;
 		byte [] byteArray=new byte[124];
-		File file = new File("src/supermarket.txt");
+		File file = new File(fileName);
 		int numBytes=(int) file.length()-1;
 		System.out.println("here is the file size"+numBytes);
 //		Map<Integer ,Boolean> windowACKS=new HashMap<Integer,Boolean>();
